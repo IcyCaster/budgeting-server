@@ -1,3 +1,20 @@
+Running docker:
+```
+docker run --pull=always --restart=unless-stopped -d -p 5006:5006 -v data:/data --name my_actual_budget actualbudget/actual-server:latest
+```
+
+Stop docker:
+```
+docker stop my_actual_budget
+```
+
+Catch up to latest fork master
+```
+git fetch upstream
+git checkout master
+git merge upstream/master
+```
+
 This is the main project to run [Actual](https://github.com/actualbudget/actual), a local-first personal finance tool. It comes with the latest version of Actual, and a server to persist changes and make data available across all devices.
 
 ### Getting Started
