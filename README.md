@@ -9,6 +9,13 @@ Data is stored in chrome, but you can load it
 Import preference: OFX/QFX is recommended - Kiwibank has Open Financical Exchange OFX
 
 
+import each account because it detects mortgage repayments are duplicates
+
+Timeline
+First Q: Oct 01 - Dec 31
+
+
+
 Stop docker:
 ```
 docker stop my_actual_budget
