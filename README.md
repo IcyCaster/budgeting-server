@@ -5,6 +5,10 @@ docker run --pull=always --restart=unless-stopped -d -p 5006:5006 -v X:\Users\Ch
 
 Data is stored in chrome, but you can load it
 
+
+Import preference: OFX/QFX is recommended - Kiwibank has Open Financical Exchange OFX
+
+
 Stop docker:
 ```
 docker stop my_actual_budget
