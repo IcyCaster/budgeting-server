@@ -1,6 +1,6 @@
 node_modules
-# user-files
-# server-files
+user-files
+server-files
 
 # Yarn
 .pnp.*
