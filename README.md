@@ -3,7 +3,7 @@ Running docker:
 docker run --pull=always --restart=unless-stopped -d -p 5006:5006 -v X:\Users\Chester\Code\budgeting-server\budget-db:/data --name my_actual_budget actualbudget/actual-server:latest
 ```
 
-Data is stored in chrome, but you can load it
+NOTE: MAKE SURE YOU EXPORT EACH TIME - BACKUPS SUCK!
 
 
 Import preference: OFX/QFX is recommended - Kiwibank has Open Financical Exchange OFX
