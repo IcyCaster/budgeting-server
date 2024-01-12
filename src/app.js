@@ -17,6 +17,7 @@ process.on('unhandledRejection', (reason) => {
   console.log('Rejection:', reason);
 });
 
+app.disable('x-powered-by');
 app.use(cors());
 app.use(
   rateLimit({
@@ -26,13 +27,22 @@ app.use(
     standardHeaders: true,
   }),
 );
-app.use(bodyParser.json({ limit: '20mb' }));
-app.use(bodyParser.raw({ type: 'application/actual-sync', limit: '20mb' }));
-app.use(bodyParser.raw({ type: 'application/encrypted-file', limit: '50mb' }));
+app.use(bodyParser.json({ limit: `${config.upload.fileSizeLimitMB}mb` }));
+app.use(
+  bodyParser.raw({
+    type: 'application/actual-sync',
+    limit: `${config.upload.fileSizeSyncLimitMB}mb`,
+  }),
+);
+app.use(
+  bodyParser.raw({
+    type: 'application/encrypted-file',
+    limit: `${config.upload.syncEncryptedFileSizeLimitMB}mb`,
+  }),
+);
 
 app.use('/sync', syncApp.handlers);
 app.use('/account', accountApp.handlers);
-app.use('/nordigen', goCardlessApp.handlers);
 app.use('/gocardless', goCardlessApp.handlers);
 app.use('/secret', secretApp.handlers);
 
@@ -60,17 +70,6 @@ function parseHTTPSConfig(value) {
 }
 
 export default async function run() {
-  if (!fs.existsSync(config.serverFiles)) {
-    fs.mkdirSync(config.serverFiles);
-  }
-
-  if (!fs.existsSync(config.userFiles)) {
-    fs.mkdirSync(config.userFiles);
-  }
-
-  await accountApp.init();
-  await syncApp.init();
-
   if (config.https) {
     const https = await import('node:https');
     const httpsOptions = {

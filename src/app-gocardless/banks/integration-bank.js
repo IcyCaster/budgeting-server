@@ -1,4 +1,9 @@
-import { sortByBookingDate, amountToInteger, printIban } from '../utils.js';
+import * as d from 'date-fns';
+import {
+  sortByBookingDateOrValueDate,
+  amountToInteger,
+  printIban,
+} from '../utils.js';
 
 const SORTED_BALANCE_TYPE_LIST = [
   'closingBooked',
@@ -12,7 +17,7 @@ const SORTED_BALANCE_TYPE_LIST = [
 
 /** @type {import('./bank.interface.js').IBank} */
 export default {
-  institutionId: 'IntegrationBank',
+  institutionIds: ['IntegrationBank'],
   normalizeAccount(account) {
     console.log(
       'Available account properties for new institution integration',
@@ -31,13 +36,33 @@ export default {
       type: 'checking',
     };
   },
+
+  normalizeTransaction(transaction, _booked) {
+    const date =
+      transaction.bookingDate ||
+      transaction.bookingDateTime ||
+      transaction.valueDate ||
+      transaction.valueDateTime;
+    // If we couldn't find a valid date field we filter out this transaction
+    // and hope that we will import it again once the bank has processed the
+    // transaction further.
+    if (!date) {
+      return null;
+    }
+    return {
+      ...transaction,
+      date: d.format(d.parseISO(date), 'yyyy-MM-dd'),
+    };
+  },
+
   sortTransactions(transactions = []) {
     console.log(
       'Available (first 10) transactions properties for new integration of institution in sortTransactions function',
       { top10Transactions: JSON.stringify(transactions.slice(0, 10)) },
     );
-    return sortByBookingDate(transactions);
+    return sortByBookingDateOrValueDate(transactions);
   },
+
   calculateStartingBalance(sortedTransactions = [], balances = []) {
     console.log(
       'Available (first 10) transactions properties for new integration of institution in calculateStartingBalance function',

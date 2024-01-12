@@ -5,13 +5,26 @@ import {
 import { Transaction, Balance } from '../gocardless-node.types.js';
 
 export interface IBank {
-  institutionId: string;
+  institutionIds: string[];
   /**
    * Returns normalized object with required data for the frontend
    */
   normalizeAccount: (
     account: DetailedAccountWithInstitution,
   ) => NormalizedAccountDetails;
+
+  /**
+   * Returns a normalized transaction object
+   *
+   * The GoCardless integrations with different banks are very inconsistent in
+   * what each of the different date fields actually mean, so this function is
+   * expected to set a `date` field which corresponds to the expected
+   * transaction date.
+   */
+  normalizeTransaction: (
+    transaction: Transaction,
+    booked: boolean,
+  ) => (Transaction & { date?: string }) | null;
 
   /**
    * Function sorts an array of transactions from newest to oldest

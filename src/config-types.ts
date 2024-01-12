@@ -2,6 +2,7 @@ import { ServerOptions } from 'https';
 
 export interface Config {
   mode: 'test' | 'development';
+  dataDir: string;
   port: number;
   hostname: string;
   serverFiles: string;
@@ -11,4 +12,9 @@ export interface Config {
     key: string;
     cert: string;
   } & ServerOptions;
+  upload?: {
+    fileSizeSyncLimitMB: number;
+    syncEncryptedFileSizeLimitMB: number;
+    fileSizeLimitMB: number;
+  };
 }

@@ -34,11 +34,17 @@ if (process.env.ACTUAL_CONFIG_PATH) {
   );
   userConfig = parseJSON(process.env.ACTUAL_CONFIG_PATH);
 } else {
-  debug(`loading config from default path: '${defaultDataDir}/config.json'`);
-  userConfig = parseJSON(path.join(defaultDataDir, 'config.json'), true);
+  let configFile = path.join(projectRoot, 'config.json');
+
+  if (!fs.existsSync(configFile)) {
+    configFile = path.join(defaultDataDir, 'config.json');
+  }
+
+  debug(`loading config from default path: '${configFile}'`);
+  userConfig = parseJSON(configFile, true);
 }
 
-/** @type {Omit<import('./config-types.js').Config, 'mode' | 'serverFiles' | 'userFiles'>} */
+/** @type {Omit<import('./config-types.js').Config, 'mode' | 'dataDir' | 'serverFiles' | 'userFiles'>} */
 let defaultConfig = {
   port: 5006,
   hostname: '::',
@@ -49,6 +55,11 @@ let defaultConfig = {
     'web',
     'build',
   ),
+  upload: {
+    fileSizeSyncLimitMB: 20,
+    syncEncryptedFileSizeLimitMB: 50,
+    fileSizeLimitMB: 20,
+  },
 };
 
 /** @type {import('./config-types.js').Config} */
@@ -56,6 +67,7 @@ let config;
 if (process.env.NODE_ENV === 'test') {
   config = {
     mode: 'test',
+    dataDir: projectRoot,
     serverFiles: path.join(projectRoot, 'test-server-files'),
     userFiles: path.join(projectRoot, 'test-user-files'),
     ...defaultConfig,
@@ -64,6 +76,7 @@ if (process.env.NODE_ENV === 'test') {
   config = {
     mode: 'development',
     ...defaultConfig,
+    dataDir: defaultDataDir,
     serverFiles: path.join(defaultDataDir, 'server-files'),
     userFiles: path.join(defaultDataDir, 'user-files'),
     ...(userConfig || {}),
@@ -85,6 +98,24 @@ const finalConfig = {
           ...(config.https || {}),
         }
       : config.https,
+  upload:
+    process.env.ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB ||
+    process.env.ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB ||
+    process.env.ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB
+      ? {
+          fileSizeSyncLimitMB:
+            +process.env.ACTUAL_UPLOAD_FILE_SYNC_SIZE_LIMIT_MB ||
+            +process.env.ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB ||
+            config.upload.fileSizeSyncLimitMB,
+          syncEncryptedFileSizeLimitMB:
+            +process.env.ACTUAL_UPLOAD_SYNC_ENCRYPTED_FILE_SYNC_SIZE_LIMIT_MB ||
+            +process.env.ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB ||
+            config.upload.syncEncryptedFileSizeLimitMB,
+          fileSizeLimitMB:
+            +process.env.ACTUAL_UPLOAD_FILE_SIZE_LIMIT_MB ||
+            config.upload.fileSizeLimitMB,
+        }
+      : config.upload,
 };
 
 debug(`using port ${finalConfig.port}`);
@@ -98,6 +129,14 @@ if (finalConfig.https) {
   debugSensitive(`using https key ${finalConfig.https.key}`);
   debug(`using https cert: ${'*'.repeat(finalConfig.https.cert.length)}`);
   debugSensitive(`using https cert ${finalConfig.https.cert}`);
+}
+
+if (finalConfig.upload) {
+  debug(`using file sync limit ${finalConfig.upload.fileSizeSyncLimitMB}mb`);
+  debug(
+    `using sync encrypted file limit ${finalConfig.upload.syncEncryptedFileSizeLimitMB}mb`,
+  );
+  debug(`using file limit ${finalConfig.upload.fileSizeLimitMB}mb`);
 }
 
 export default finalConfig;

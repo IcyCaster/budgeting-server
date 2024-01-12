@@ -2,7 +2,7 @@ import { printIban, amountToInteger } from '../utils.js';
 
 /** @type {import('./bank.interface.js').IBank} */
 export default {
-  institutionId: 'ING_PL_INGBPLPW',
+  institutionIds: ['ING_PL_INGBPLPW'],
 
   normalizeAccount(account) {
     return {
@@ -13,6 +13,13 @@ export default {
       name: [account.product, printIban(account)].join(' ').trim(),
       official_name: account.product,
       type: 'checking',
+    };
+  },
+
+  normalizeTransaction(transaction, _booked) {
+    return {
+      ...transaction,
+      date: transaction.bookingDate || transaction.valueDate,
     };
   },
 
