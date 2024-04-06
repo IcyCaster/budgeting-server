@@ -10,6 +10,8 @@ import DanskeBankDabNO22 from './banks/danskebank-dabno22.js';
 import SparNordSpNoDK22 from './banks/sparnord-spnodk22.js';
 import Belfius from './banks/belfius_gkccbebb.js';
 import SpkMarburgBiedenkopfHeladef1mar from './banks/spk-marburg-biedenkopf-heladef1mar.js';
+import SEBPrivat from './banks/seb-privat.js';
+import SEBKortBankAB from './banks/seb-kort-bank-ab.js';
 
 const banks = [
   AmericanExpressAesudef1,
@@ -23,6 +25,8 @@ const banks = [
   SparNordSpNoDK22,
   Belfius,
   SpkMarburgBiedenkopfHeladef1mar,
+  SEBPrivat,
+  SEBKortBankAB,
 ];
 
 export default (institutionId) =>
